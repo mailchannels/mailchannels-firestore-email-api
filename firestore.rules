@@ -1,0 +1,9 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Example for the default collection names. Merge carefully into company rules:
+    // any overlapping allow rule can grant access despite these false conditions.
+    match /mailchannelsOutbox/{document=**} { allow read, write: if false; }
+    match /mailchannelsReceipts/{document=**} { allow read, write: if false; }
+  }
+}
