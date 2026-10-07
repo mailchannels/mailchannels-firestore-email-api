@@ -1,0 +1,33 @@
+name: Validate development candidate
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  FIREBASE_CLI_DISABLE_UPDATE_CHECK: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.23.3'
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci --ignore-scripts --no-fund --no-audit
+      - run: npm test
+      - run: npx --no-install firebase setup:emulators:firestore
+      - run: npm run test:emulator
+      - run: python -m pip install cryptography==45.0.3
+      - run: python scripts/tls.py
+      - run: npm run test:package
