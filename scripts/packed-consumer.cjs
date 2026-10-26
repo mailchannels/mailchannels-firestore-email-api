@@ -13,6 +13,8 @@ try{
  for(const f of ['lib/index.js','lib/index.d.ts','firestore.rules','README.md','LICENSE'])if(!files.includes(f))throw Error('missing '+f);
  fs.writeFileSync(path.join(temp,'package.json'),'{"private":true}');
  run('npm',['install','--ignore-scripts','--no-fund','--no-audit',path.join(temp,pack.filename)],temp);
+ // A fresh consumer resolves its own dependency ranges, so audit what users actually install.
+ run('npm',['audit','--omit=dev','--audit-level=low'],temp);
  const entry=path.join(temp,'node_modules/@mailchannels/firestore-email-api');
  const exported=require(entry);const assert=require('node:assert/strict');
  assert.deepEqual(Object.keys(exported),['sendQueuedEmail']);const endpoint=exported.sendQueuedEmail.__endpoint;
