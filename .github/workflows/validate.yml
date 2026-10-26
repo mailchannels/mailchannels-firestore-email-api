@@ -25,6 +25,8 @@ jobs:
         with:
           python-version: '3.12'
       - run: npm ci --ignore-scripts --no-fund --no-audit
+      - name: Production dependency audit
+        run: npm audit --omit=dev --audit-level=low
       - run: npm test
       - run: npx --no-install firebase setup:emulators:firestore
       - run: npm run test:emulator

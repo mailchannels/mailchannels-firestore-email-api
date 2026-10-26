@@ -135,11 +135,13 @@ real Firestore/Functions emulators. It creates disposable local data only.
 
 Run `npm run test:package` for a fresh tarball consumer/discovery check.
 
-Release dependency gate: the inspected production dependency tree has two moderate
-audit findings (uuid via gaxios in firebase-admin's Cloud Storage dependency). The
-full development tree has 16 findings (12 high, four moderate) after compatible
-updates. No forced downgrade/override was applied. Resolve or formally review
-these before publication; the local lock does not control a consumer's dependencies.
+Release dependency gate: `npm audit --omit=dev` reports no findings for the locked
+production tree, and CI and `npm run test:package` now fail if either the locked tree
+or a freshly installed consumer gains a production finding. The development tree
+(Firebase CLI and emulator test helpers) still has 14 findings (10 high, four moderate)
+whose only fixes are major downgrades. They never ship in the package. See
+[docs/dependency-review.md](docs/dependency-review.md) for the dated review; a
+maintainer should confirm that disposition before publication.
 
 The 13 unit tests exercise schema/configuration and mocked HTTP status, deadline
 and no-retry behavior. The emulator suite has 68 assertions covering real transactions/security
