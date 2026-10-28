@@ -17,15 +17,17 @@ export const sendQueuedEmail = onDocumentCreated({
   secrets:[key], retry:false, timeoutSeconds:60, memory:'256MiB',
 }, async event => {
   if (!event.data) return;
+  // Non-sensitive references let operators locate the outbox document and receipt namespace.
+  const context = {queue:queue.value(), instance:instance.value(), operation:event.params.operation};
   const app = getApps().find(app => app.name === '[DEFAULT]') ?? initializeApp();
   try {
     const state = await processCreated({db:getFirestore(app),
       config:{sender:sender.value(),queue:queue.value(),receipts:receipts.value(),instance:instance.value()},
       operation:event.params.operation,createdAt:event.data.createTime,data:event.data.data(),key:key.value(),transport:send});
-    logger.info('MailChannels outbox result',{state});
+    logger.info('MailChannels outbox result',{...context,state});
   } catch {
-    // Fixed diagnostic only: dependency errors may contain credentials or document content.
-    logger.error('MailChannels outbox requires operator review');
+    // Never log the caught error: dependency errors may contain credentials or document content.
+    logger.error('MailChannels outbox requires operator review',context);
     throw new Error('MAILCHANNELS_OPERATION_REVIEW_REQUIRED');
   }
 });
