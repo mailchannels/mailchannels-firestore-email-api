@@ -1,0 +1,1 @@
+{"name":"isolated-firestore-fixture","private":true,"main":"index.cjs","engines":{"node":"22"},"dependencies":{"firebase-functions":"^7.4.0","firebase-admin":"^14.5.0"}}
