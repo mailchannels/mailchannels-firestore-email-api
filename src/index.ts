@@ -24,7 +24,9 @@ export const sendQueuedEmail = onDocumentCreated({
     const state = await processCreated({db:getFirestore(app),
       config:{sender:sender.value(),queue:queue.value(),receipts:receipts.value(),instance:instance.value()},
       operation:event.params.operation,createdAt:event.data.createTime,data:event.data.data(),key:key.value(),transport:send});
-    logger.info('MailChannels outbox result',{...context,state});
+    // Results that cannot recover automatically need operator follow-up, so alert at error level.
+    const log = ['rejected','unknown','invalid','unconfigured','conflict'].includes(state) ? logger.error : logger.info;
+    log('MailChannels outbox result',{...context,state});
   } catch {
     // Never log the caught error: dependency errors may contain credentials or document content.
     logger.error('MailChannels outbox requires operator review',context);

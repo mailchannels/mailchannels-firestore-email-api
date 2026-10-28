@@ -17,6 +17,13 @@ test('both outbox log paths identify the operation and namespace without the err
   await sendQueuedEmail.run(event);
   assert.deepEqual(logs.pop(), ['info', 'MailChannels outbox result', {...context, state:'sent'}]);
 
+  for (const [state, level] of [['accepted','info'],['duplicate','info'],['stale','info'],['rejected','error'],
+    ['unknown','error'],['invalid','error'],['unconfigured','error'],['conflict','error']]) {
+    core.processCreated = async () => state;
+    await sendQueuedEmail.run(event);
+    assert.deepEqual(logs.pop(), [level, 'MailChannels outbox result', {...context, state}]);
+  }
+
   core.processCreated = async () => { throw new Error('secret-key private body'); };
   await assert.rejects(sendQueuedEmail.run(event), /MAILCHANNELS_OPERATION_REVIEW_REQUIRED/);
   const entry = logs.pop();
