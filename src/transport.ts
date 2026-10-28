@@ -4,8 +4,7 @@ import type { Payload, Outcome } from './core';
 /** One HTTP attempt, fixed endpoint, normal TLS verification; no redirects/retries. */
 export function send(payload: Payload, key: string): Promise<Outcome> {
   return new Promise(resolve => {
-    let finished = false;
-    const finish = (outcome: Outcome) => { if (!finished) { finished=true; clearTimeout(timer); resolve(outcome); } };
+    const finish = (outcome: Outcome) => { clearTimeout(timer); resolve(outcome); };
     const body = JSON.stringify(payload);
     const req = request('https://api.mailchannels.net/tx/v1/send', {
       method:'POST', agent:false,
